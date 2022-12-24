@@ -1,0 +1,85 @@
+<resources>
+    <string name="app_name">FExIO</string>
+
+
+
+
+    <string-array name="AUDIO">
+        <item>.mp3</item>
+        <item>.mpa</item>
+        <item>.wav</item>
+        <item>.wma</item>
+        <item>.wpl</item>
+        <item>.mid </item>
+        <item>.iff</item>
+        <item>.cda</item>
+        <item>.aif</item>
+    </string-array>
+
+    <string-array name="VIDEO">
+        <item>.mp4</item>
+        <item>.mpeg</item>
+        <item>.3gp</item>
+        <item>.wmv</item>
+        <item>.mov</item>
+        <item>.3g2</item>
+        <item>.vob</item>
+        <item>.swf</item>
+        <item>.rm</item>
+        <item>.mkv</item>
+        <item>.m4v</item>
+        <item>.h264</item>
+        <item>.flv</item>
+        <item>.avi</item>
+
+    </string-array>
+
+    <string-array name="IMAGE">
+        <item>.ai</item>
+        <item>.jpeg</item>
+        <item>.png</item>
+        <item>.gif</item>
+        <item>.bmp</item>
+        <item>.ico</item>
+        <item>.svg</item>
+        <item>.psd</item>
+        <item>.ps</item>
+        <item>.max</item>
+        <item>.obj</item>
+        <item>.ps</item>
+        <item>.tif</item>
+        <item>.3ds</item>
+        <item>.3dm</item>
+        <item>.ico</item>
+
+    </string-array>
+    
+    
+    <string-array name="TEXT">
+        <item>.doc</item>
+        <item>.docx</item>
+        <item>.pdf</item>
+        <item>.txt</item>
+        <item>.wks</item>
+        <item>.xlsx</item>
+        <item>.ods</item>
+        <item>.xlr</item>
+        <item>.ppt</item>
+        <item>.pptx</item>
+        <item>.odp</item>
+        <item>.key</item>
+        <item>.accdb</item>
+        <item>.csv</item>
+        <item>.dat</item>
+        <item>.db</item>
+        <item>.log</item>
+        <item>.sav</item>
+        <item>.msg</item>
+        <item>.odt</item>
+        <item>.tex</item>
+
+    </string-array>
+
+
+
+</resources>
