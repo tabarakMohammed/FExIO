@@ -1,65 +1,69 @@
 package tito.soft.extantionchangeme;
 
+import android.Manifest;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Environment;
+import android.widget.Button;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.Manifest;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SyncStatusObserver;
-import android.content.pm.PackageManager;
-import android.net.Uri;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.Environment;
-import android.os.FileUtils;
-import android.os.Handler;
-import android.os.storage.StorageManager;
-import android.os.storage.StorageVolume;
-import android.provider.MediaStore;
-import android.util.Log;
-import android.view.View;
-import android.webkit.MimeTypeMap;
-import android.widget.Button;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import org.w3c.dom.Text;
-
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URL;
-import java.nio.channels.FileChannel;
-import java.util.Arrays;
 
-public class MainActivity extends AppCompatActivity {
+import tito.soft.extantionchangeme.businesstire.RenameFiles;
 
-    private RecyclerView recyclerView, recyclerView2, recyclerView3, recyclerView4;
-    private RecyclerView.Adapter mAdapter;
-    private RecyclerView.LayoutManager layoutManager;
+public class MainActivity extends AppCompatActivity   {
+    Intent serviceIntent;
 
-    String[] small;
-
+    String[] _extensions;
     private ProgressBar progressBar;
-    private int progressStatus = 0;
-    private Handler handler = new Handler();
     String extEdit = ".mp3";
     File dir = null;
+    public TextView _textView;
+    private broadCastToMain receiver;
 
+
+
+
+
+    @RequiresApi(api = Build.VERSION_CODES.R)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+         RecyclerView recyclerView, recyclerView2, recyclerView3, recyclerView4;
+         RecyclerView.Adapter mAdapter;
+         RecyclerView.LayoutManager layoutManager;
+
+
+        IntentFilter filter = new IntentFilter("APP_SPECIFIC_BROADCAST");
+        receiver = new broadCastToMain();
+        registerReceiver( receiver, filter);
+
+        serviceIntent = new Intent(this,
+                RenameFiles.class);
+
+         _textView = findViewById(R.id.textView);
+
+
         TextView extensionText = findViewById(R.id.extensionText);
         progressBar = findViewById(R.id.progressBar);
+        progressBar.setProgressTintList(ColorStateList.valueOf(Color.WHITE));
+
 
 
         recyclerView = findViewById(R.id.my_recycler_view);
@@ -68,22 +72,16 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         recyclerView.setLayoutManager(layoutManager);
-        small = getResources().getStringArray(R.array.AUDIO);
-        mAdapter = new RecyclerPlugin(small, food -> {
-            //  Log.d("", food );
-            extensionText.setText(food);
-        });
+        _extensions = getResources().getStringArray(R.array.AUDIO);
+        mAdapter = new RecyclerPlugin(_extensions, extensionText::setText);
         recyclerView.setAdapter(mAdapter);
 
         recyclerView2 = findViewById(R.id.my_recycler_view2);
         recyclerView2.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         recyclerView2.setLayoutManager(layoutManager);
-        small = getResources().getStringArray(R.array.IMAGE);
-        mAdapter = new RecyclerPlugin(small, food -> {
-            //  Log.d("", food );
-            extensionText.setText(food);
-        });
+        _extensions = getResources().getStringArray(R.array.IMAGE);
+        mAdapter = new RecyclerPlugin(_extensions, extensionText::setText);
         recyclerView2.setAdapter(mAdapter);
         recyclerView2.setNestedScrollingEnabled(false);
 
@@ -91,11 +89,8 @@ public class MainActivity extends AppCompatActivity {
         recyclerView3.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         recyclerView3.setLayoutManager(layoutManager);
-        small = getResources().getStringArray(R.array.VIDEO);
-        mAdapter = new RecyclerPlugin(small, food -> {
-            //  Log.d("", food );
-            extensionText.setText(food);
-        });
+        _extensions = getResources().getStringArray(R.array.VIDEO);
+        mAdapter = new RecyclerPlugin(_extensions, extensionText::setText);
         recyclerView3.setAdapter(mAdapter);
         recyclerView3.setNestedScrollingEnabled(false);
 
@@ -103,11 +98,8 @@ public class MainActivity extends AppCompatActivity {
         recyclerView4.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         recyclerView4.setLayoutManager(layoutManager);
-        small = getResources().getStringArray(R.array.TEXT);
-        mAdapter = new RecyclerPlugin(small, food -> {
-            //  Log.d("", food );
-            extensionText.setText(food);
-        });
+        _extensions = getResources().getStringArray(R.array.TEXT);
+        mAdapter = new RecyclerPlugin(_extensions, extensionText::setText);
         recyclerView4.setAdapter(mAdapter);
         recyclerView4.setNestedScrollingEnabled(false);
 
@@ -122,17 +114,18 @@ public class MainActivity extends AppCompatActivity {
         Button showMe = findViewById(R.id.showMe);
 
 
-        showMe.setOnClickListener(new View.OnClickListener() {
-            @RequiresApi(api = Build.VERSION_CODES.Q)
-            public void onClick(View v) {
-                extEdit = extensionText.getText().toString();
-                OpenFolder();
+        showMe.setOnClickListener(v -> {
 
-            }
+            extEdit = extensionText.getText().toString();
+
+            OpenFolder();
         });
 
 
+
+
     }
+
 
     @RequiresApi(api = Build.VERSION_CODES.Q)
     public void OpenFolder() {
@@ -146,122 +139,55 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 200 && resultCode == RESULT_OK) {
-            String s = data.getData().getPath();
-            String sx[] = s.split(":");
-            Log.d("", "s: " + sx[1]);
 
-            String path = Environment.getExternalStorageDirectory().toString() + "/" + sx[1] + "/";
+            String fullDirPath = data.getData().getPath();
+            String[] dirName = fullDirPath.split(":");
+
+
+            String path = Environment.getExternalStorageDirectory().toString() + "/" + dirName[1] + "/";
             dir = new File(path + "/Result OF Files");
             if (!dir.exists()) {
                 dir.mkdirs();
             }
-            //   deleteEmptyFolders(path);
-            walk(path, dir.getAbsolutePath(), extEdit);
-        }
-    }
+            serviceIntent.putExtra("path", path);
+            serviceIntent.putExtra("dir",  dir);
+            serviceIntent.putExtra("ext", extEdit);
 
-
-//     public void deleteEmptyFolders(String root){
-//         File file = new File(root);
-//          File[] folderList;
-//
-//         if(file == null){
-//             return;
-//         } else {
-//             folderList = file.listFiles();
-//             for (File folder : folderList) {
-//                  if(folder.isDirectory()){
-//                      try {
-//                       if (folder.listFiles().length == 0) {
-//
-//                           folder.delete();
-//
-//                       }else{
-//
-//                           deleteEmptyFolders(folder.getAbsolutePath());
-//                       }
-//
-//                     }catch (NullPointerException e){
-//                        // e.printStackTrace();
-//                     }
-//                  }
-//             }
-//         }
-//     }
-
-    public void walk(String root, String dirin, String ext) {
-
-
-        File file = new File(root);
-
-        if (file == null) {
-            return;
-        }
-        File[] list = file.listFiles();
-        progressBar.setMax(list.length);
-        String distPathManager;
-
-
-        for (File f : list) {
-            progressStatus += 1;
-            progressBar.setProgress(progressStatus);
-
-
-            if (f.isFile()) {
-                String NameDistPathManager;
-                distPathManager = f.getAbsolutePath().substring(f.getPath().lastIndexOf("/"));
-
-                if (f.getPath().contains(".")) {
-                    NameDistPathManager = distPathManager.replaceAll("\\.\\w*", "");
-                } else {
-                    NameDistPathManager = distPathManager;
-                }
-                try {
-
-                    f.renameTo(new File(dirin, NameDistPathManager + ext));
-
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-                TextView _textView = findViewById(R.id.textView);
-                _textView.setText("all is ok ! " + progressStatus);
-
-            } else if (f.isDirectory()) {
-
-                walk(f.getAbsolutePath(), dir.getAbsolutePath(), extEdit);
-
-
-            }
-
+            startService(serviceIntent);
 
         }
     }
 
-/*
+    public class broadCastToMain  extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
 
-                         copyFile(f,new File( dirin,NameDistPathManager+ext));
-                         InputStream in = new FileInputStream(f.getAbsolutePath());
-                         OutputStream out = new FileOutputStream(new File( dirin,NameDistPathManager+ext));
-                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                             FileUtils.copy(in,out);
-                         }
+            Bundle extras = intent.getExtras();
+            int MAX_PROGRESS = (int) extras.get("MAX_PROGRESS");
+            int loadingCounter = (int) extras.get("loadingCounter");
 
-                         void copyFile(File src, File dst) throws IOException {
+            StringBuilder text = new StringBuilder();
+            text =
+                    loadingCounter == 0 ? text.append(" please wait for fetching the files ").append(MAX_PROGRESS):
+                            text.append(" working on ").append(loadingCounter).append(" of ").append(MAX_PROGRESS)
+                                    .append(" Done ");
+            _textView.setText(text);
+            progressBar.setMax(MAX_PROGRESS);
+            progressBar.setProgress(loadingCounter);
 
-         FileChannel inChannel = new FileInputStream(src).getChannel();
-         FileChannel outChannel = new FileOutputStream(dst).getChannel();
-         try {
-             inChannel.transferTo(0, inChannel.size(), outChannel);
-         } finally {
-             if (inChannel != null)
-                 inChannel.close();
-             if (outChannel != null)
-                 outChannel.close();
-         }
-     }
+        }
 
-* */
+
+    }
+
+    @Override
+    public void onDestroy() {
+        this.unregisterReceiver(receiver);
+        super.onDestroy();
+    }
+
+
+
+
 
 }
